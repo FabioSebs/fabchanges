@@ -1,87 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TodoFormE from "./TodoFormE";
 import { CgCloseO } from "react-icons/cg";
 import { FiEdit } from "react-icons/fi";
+import { useSelector, useDispatch } from "react-redux";
+import { removeTask } from "../redux/task";
 
-function Todo({ tasks, completeTask, removeTask, updateTask, value }) {
-  const [update, setUpdate] = useState("")
+function Todo() {
+  const [singleTask, setSingleTask] = useState({})
+  const tasks = useSelector((state) => state.tasks.value)
   const [editMode, setEditMode] = useState(false)
+  const dispatch = useDispatch()
 
-  const SubmitUpdate = (update) => {
-    updateTask(update.id, update.value)
-  }
-
-  function handleEdit(text) {
+  function initiateEditMode(task) {
+    setSingleTask(task)
     setEditMode(true)
-    setUpdate(text)
-    updateTask(text)
-
   }
 
-  function filter(completed, show) {
-    //determines if the task should be show or not
-    if (show == "all") {
-      return true
-    } else if (show == "completed") {
-      if (completed)
-        return true
-    } else if (show == "incompleted") {
-      if (!completed)
-        return true
-    } else {
-      return false
-    }
 
+  if (editMode) {
+    return <TodoFormE task={singleTask} setTask={setSingleTask} setEditMode={setEditMode}/>
   }
 
-  // if(editMode) {
-  //   return <TodoFormE update={update} setUpdate={setUpdate} updateTasks={updateTask} setEditMode={setEditMode}/>;
-  // }
-  return <>
-    {editMode ? <TodoFormE update={update} setUpdate={setUpdate} updateTasks={updateTask} setEditMode={setEditMode} /> : tasks.map((task, index) => (
-      //checks if the task should be shown and shows if is true
-      filter(task.isComplete, value) == true &&
-      <div
-        className={task.isComplete ? "task-row complete" : "task-row"}
-        key={index}
-      >
+  else {
+    return <>
+      {tasks.map((task) => (
+        <div className={task?.isCompleted ? "task-row complete" : "task-row"} key={task.id}>
+          {/* TEXT */}
+          <div key={task.id}>
+            {task.text}
+          </div>
 
-        <div key={task.id} onClick={() => completeTask(task.id)}>
-          {task.text}
+          {/* SIDE ICONS */}
+          <div className="icon">
+            <CgCloseO onClick={() => dispatch(removeTask(task))} className="delete-icon" />
+            <FiEdit onClick={() => initiateEditMode(task)} className="edit-icon" />
+          </div>
         </div>
-        <div className="icon">
-          <CgCloseO onClick={() => removeTask(task.id)} className="delete-icon" />
-          <FiEdit
-            onClick={() => handleEdit(task.text)}
-            className="edit-icon"
-          />
-        </div>
-      </div>
+      ))}
+    </>
+  }
 
-    ))}
-  </>
-
-  // return tasks.map((task, index) => (
-  //   //checks if the task should be shown and shows if is true
-  //   filter(task.isComplete,value) == true &&
-  //   <div
-  //     className={task.isComplete ? "task-row complete" : "task-row"}
-  //     key={index}
-  //   >
-
-  //     <div key={task.id} onClick={() => completeTask(task.id)}>
-  //       {task.text}
-  //     </div>
-  //     <div className="icon">
-  //       <CgCloseO onClick={() => removeTask(task.id)} className="delete-icon" />
-  //       <FiEdit
-  //         onClick={() => handleEdit(task.text)} 
-  //         className="edit-icon"
-  //       />
-  //     </div>
-  //   </div>
-
-  // ));
 }
 
 

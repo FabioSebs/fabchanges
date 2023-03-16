@@ -1,27 +1,35 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from 'react-redux'
+import { addTask } from "../redux/task";
+import { incrementId } from "../redux/id";
 
-function TodoForm({ tasks, setTasks, onSubmit, id, setId }) {
-  const [input, setInput] = useState("")
+//This has to take input from user and insert into task list 
+function TodoForm() {
+  const [input, setInput] = useState({})
+  const id = useSelector((state) => state.id.value)
   const inputRef = useRef(null)
+  const dispatch = useDispatch()
 
+  //allow to start in typing position ready to input
   useEffect(() => {
-    inputRef.current.focus() //allow to start in typing position ready to input
+    inputRef.current.focus()
   })
 
   const handleInput = e => {
-    setId(e => ++e)
-    setInput(e.target.value)
+    setInput(prev => ({ ...prev, text: e.target.value }))
   }
 
 
-  const handleSubmit = e => {
-    e.preventDefault(); //function to stop the refresh when button clicked
-    onSubmit(tasks)
-    setTasks([...tasks, { id: id, text: input }])
+  const handleSubmit = () => {
+    setInput(prev => ({ ...prev, id: id }))
+    dispatch(incrementId())
+    console.log(input)
+    dispatch(addTask(input))
+    setInput(prev => ({ ...prev, text: "" }))
   };
 
   return (
-    <form className="task-form" onSubmit={handleSubmit}>
+    <div className="task-form">
       <input
         type="text"
         placeholder="Add a task"
@@ -29,9 +37,10 @@ function TodoForm({ tasks, setTasks, onSubmit, id, setId }) {
         className="task-input"
         onChange={handleInput}
         ref={inputRef}
+        value={input.text}
       />
-      <button className="task-button">TO DO</button>
-    </form>
+      <button type="button" className="task-button" onClick={() => handleSubmit()}>TO DO</button>
+    </div>
   );
 }
 

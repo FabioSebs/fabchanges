@@ -1,32 +1,34 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useDispatch , useSelector} from "react-redux";
+import { updateTask } from "../redux/task";
 
-function TodoFormE({ update, setUpdate, updateTasks, setEditMode }) {
+function TodoFormE({task, setTask, setEditMode}) {
+  const dispatch = useDispatch()
   const inputRef = useRef(null)
-  const [id, setId] = useState(0);
 
+  //allow to start in typing position ready to input
   useEffect(() => {
-    inputRef.current.focus() //allow to start in typing position ready to input
+    inputRef.current.focus() 
   })
 
-  const handleSubmit = e => {
-    e.preventDefault(); //function to stop the refresh when button clicked
-    setEditMode(false)
-    updateTasks(update)
-    // setUpdate("")
+  const handleSubmit = () => {
+    setEditMode(false);
+    console.log(task)
+    dispatch(updateTask(task))
   };
 
   return (
-    <form className="task-form" onSubmit={handleSubmit}>
+    <div className="task-form">
       <input
         type="text"
         placeholder="Edit Task"
         name="text"
         className="task-input"
-        onChange={e => setUpdate(e.target.value)}
+        onChange={e => setTask(prev => ({...prev, text: e.target.value}))}
         ref={inputRef}
       />
-      <button className="task-button">EDIT</button>
-    </form>
+      <button type="button" onClick={() => handleSubmit()} className="task-button">EDIT</button>
+    </div>
   );
 }
 
